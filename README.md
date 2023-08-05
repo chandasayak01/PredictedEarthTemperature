@@ -1,1 +1,19 @@
-This is a R programming project.
+install.packages("dplyr")
+install.packages("tidyr")
+install.packages("forecast")
+install.packages("tidyverse")
+library(tidyverse)
+library(forecast)
+global_temp <- read.csv("C:/Users/HP/Downloads/GlobalTemperatures.csv")
+land_temp_by_country <- read.csv("C:/Users/HP/Downloads/GlobalTemperaturesbyCountry.csv")
+merged_data <- merge(global_temp,land_temp_by_country, by = "dt" )
+filtered_data <- merged_data %>%
+  filter(dt >= "1750-01-01" & dt <= "2015-12-01") %>%
+  na.omit()
+time_series_data <- ts(filtered_data$LandAndOceanAverageTemperature, frequency = 12, start = c(1750,1))
+model <- auto.arima(time_series_data)
+forecast_data <- forecast(model, h = 12*(2050-2015))
+ forecast_dates <- seq(as.Date("2016-01-01"),by = "months", length.out = 12*(2050-2015))
+ forecasted_temperatures <- data.frame(date = forecast_dates, forecasted_temperatures = forecast_data$mean)
+ aic_value <- AIC(model)
+ bic_value <- BIC(model)
